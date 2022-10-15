@@ -1,75 +1,62 @@
-import { Component } from "react";
+import { useState, useEffect } from "react";
 import { SearchBar } from "./Searchbar/Searchbar";
 import { ImageGallery } from './ImageGallery/ImageGallery'
 import { LoadMoreBtn } from './Button/Button'
 import {Loader} from './Loader/Loader'
-import {getImageFromApi} from '../api/api'
+import { getImageFromApi } from '../api/api'
 
-class App extends Component {
-  state = {
-    items:[],
-    page: 1,
-    searchQuery: '',
-    isLoading: false,
-  }
-  componentDidUpdate(_, prevState) {
-    const { page, searchQuery} = this.state
-    if (prevState.page !== page || prevState.searchQuery !== searchQuery) {
-      this.addImage(page, searchQuery)
-    }
-    
-  }
-  addImage = async (page, searchQuery) => {
+export const App = () => {
+  const [items, setItems] = useState([])
+  const [page, setPage] = useState(1)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+
+  useEffect(() => {
+    addImage(page, searchQuery)
+  }, [page, searchQuery])
+  
+
+  const addImage = async (page, searchQuery) => {
     try {
-      this.setState({
-        isLoading: true
-      })
+      if(!searchQuery){
+        return
+      }
+      setIsLoading(true)
       const images = await getImageFromApi(page, searchQuery)
       
-    this.setState(prevState=>({
-      items: [...prevState.items, ...images],
-      isLoading: false
-    }))
+      setItems(prev => [...prev, ...images])
+      setIsLoading(false)
       
     } catch (err) {
       console.log(err);
     } finally {
-      this.setState({
-        isLoading: false
-      })
+      setIsLoading(false)
     }
     
   }
 
-  handleSearchbarSumbit = (searchQuery) => {
+ const handleSearchbarSumbit = (searchQuery) => {
     if (searchQuery.trim() === '') {
       alert('Please, enter your request')
       return
     }
-    this.setState({
-      searchQuery: searchQuery,
-      page: 1,
-      items: []
-    })
+   setItems([])
+   setPage(1)
+   setSearchQuery(searchQuery)
+ 
+ }
   
-  }
-  onLoadMoreButton = () => {
-    this.setState(prevState => ({
-      page: prevState.page + 1
-    }))
-  }
-  
-  render() {
-    const { items, isLoading } = this.state
-    return (
-      <div>
-        <SearchBar onSubmit={this.handleSearchbarSumbit} />
-        <ImageGallery items={items} />
-        {isLoading && <Loader />}
-        {items.length > 0 && (<LoadMoreBtn onClick={this.onLoadMoreButton} />)}
-      </div>
-    )
+  const onLoadMoreButton = () => {
+    setPage(prev=>prev+1)
   }
 
+  return (
+      <div>
+        <SearchBar onSubmit={handleSearchbarSumbit} />
+        <ImageGallery items={items} />
+        {isLoading && <Loader />}
+        {items.length > 0 && (<LoadMoreBtn onClick={onLoadMoreButton} />)}
+      </div>
+    )
 }
-export default App
+
