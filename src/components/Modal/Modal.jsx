@@ -17,13 +17,13 @@ export const Modal = ({ onClose, url }) => {
             onClose()
         }        
     }
-    
+
     useEffect(() => {
         window.addEventListener('keydown', handleEscapeClick)
         return () => {
         window.removeEventListener('keydown', handleEscapeClick)    
         }
-    }, [])  
+    }, [handleEscapeClick])  
     
         return createPortal(
         <div className={css.Overlay} onClick={handleBackdropClick}>
