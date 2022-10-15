@@ -1,4 +1,4 @@
-import { Component, use } from "react";
+import { Component } from "react";
 import { SearchBar } from "./Searchbar/Searchbar";
 import { ImageGallery } from './ImageGallery/ImageGallery'
 import { LoadMoreBtn } from './Button/Button'
